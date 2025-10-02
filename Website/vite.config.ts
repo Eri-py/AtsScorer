@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import mkcert from "vite-plugin-mkcert";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,4 +15,9 @@ export default defineConfig({
     react(),
     mkcert(),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 });
