@@ -1,14 +1,14 @@
 using AtsScorer.Api.Dtos;
 using AtsScorer.Api.Results;
 
-namespace AtsScorer.Api.Services.AuthServices.SignUpService;
+namespace AtsScorer.Api.Services.AuthServices.SignUpServices;
 
 public interface ISignUpService
 {
     /// <summary>
     /// Initiates the sign-up process by validating and storing initial user information.
     /// </summary>
-    /// <param name="request">The sign-up request containing username and email. See <see cref="StartSignUpRequest"/></param>
+    /// <param name="request">The sign-up request containing email. See <see cref="StartSignUpRequest"/></param>
     /// <returns><see cref="Result{T}"/> where T is <see cref="StartSignUpResponse"/></returns>
     public Task<Result<StartSignUpResponse>> StartSignUpAsync(StartSignUpRequest request);
 
