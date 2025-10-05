@@ -1,7 +1,9 @@
-import { axiosInstance } from "@/api/axiosInstance";
-import { useMutation } from "@tanstack/react-query";
-import { useServerError, type ServerError } from "@/hooks/auth/useServerError";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+
+import { useServerError, type ServerError } from "@/hooks/auth/useServerError";
+import { axiosInstance } from "@/api/axiosInstance";
 
 // Types for API requests
 type StartSignUpRequest = {
@@ -51,6 +53,7 @@ export function useSignUp() {
   const { serverErrorMessage, handleServerError, clearServerError } = useServerError();
   const [step, setStep] = useState<number>(0);
   const [otpExpiresAt, setOtpExpiresAt] = useState<Date | null>(null);
+  const navigate = useNavigate();
 
   const startSignUpMutation = useMutation({
     mutationFn: (data: StartSignUpRequest) => startSignUpApi(data),
@@ -79,10 +82,7 @@ export function useSignUp() {
 
   const completeSignUpMutation = useMutation({
     mutationFn: (data: CompleteSignUpRequest) => completeSignUpApi(data),
-    onSuccess: () => {
-      // Handle successful signup (redirect, show success message, etc.)
-      console.log("Signup completed successfully!");
-    },
+    onSuccess: () => navigate({ to: "/" }),
     onError: (error: ServerError) => handleServerError(error),
   });
 
@@ -97,7 +97,7 @@ export function useSignUp() {
     clearServerError,
 
     // Mutations
-    startSignUpAsync: startSignUpMutation.mutateAsync,
+    startSignUp: startSignUpMutation.mutate,
     isStarting: startSignUpMutation.isPending,
 
     verifyOtp: verifyOtpMutation.mutate,

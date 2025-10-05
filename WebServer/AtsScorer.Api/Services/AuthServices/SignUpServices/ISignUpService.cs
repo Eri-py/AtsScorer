@@ -20,7 +20,7 @@ public interface ISignUpService
     /// <remarks>
     /// Successful verification marks the email as confirmed in the system.
     /// </remarks>
-    public Result VerifyOtpAsync(VerifyOtpRequest request);
+    public Result VerifyOtp(VerifyOtpRequest request);
 
     /// <summary>
     /// Verifies the One-Time Passcode (OTP) sent to the user's email during registration.

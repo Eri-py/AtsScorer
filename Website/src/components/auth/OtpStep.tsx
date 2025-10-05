@@ -15,29 +15,28 @@ import { CustomFormHeader } from "./CustomInputs";
 import type { ResendOtpResponse } from "@/hooks/auth/useSignUp";
 
 type OtpPageProps = {
+  mode: "login" | "signup";
   email: string;
   intitialOtpExpiresAt: Date;
+  handleNext?: () => void;
   handleBack: () => void;
   isPending: boolean;
-  mode: "login" | "register";
-  handleNext?: () => void;
   resendOtpAsync: (data: { email: string }) => Promise<AxiosResponse<ResendOtpResponse>>;
   isResending: boolean;
 };
 
-export function OtpPage({
+export function OtpStep({
+  mode,
   email,
   intitialOtpExpiresAt,
+  handleNext,
   handleBack,
   isPending,
-  mode,
-  handleNext,
   resendOtpAsync,
   isResending,
 }: OtpPageProps) {
   const theme = useTheme();
   const { control } = useFormContext();
-
   const [endTime, setEndTime] = useState(intitialOtpExpiresAt.getTime());
   const [isResendDisabled, setIsResendDisabled] = useState<boolean>(true);
 
@@ -47,7 +46,6 @@ export function OtpPage({
     setEndTime(newEndTime);
     setIsResendDisabled(true);
 
-    // Re-enable resend button after 1/5th of the timer
     setTimeout(
       () => {
         setIsResendDisabled(false);
@@ -66,7 +64,7 @@ export function OtpPage({
             <b>{email?.toLowerCase()}.</b>
           </span>
         }
-        align="flex-start"
+        align="center"
       />
 
       <Controller
@@ -150,7 +148,7 @@ export function OtpPage({
         type={mode === "login" ? "submit" : "button"}
         size="large"
         variant="contained"
-        onClick={mode === "register" ? handleNext : undefined}
+        onClick={mode === "signup" ? handleNext : undefined}
         loading={isPending}
       >
         {mode === "login" ? "Submit" : "Continue"}

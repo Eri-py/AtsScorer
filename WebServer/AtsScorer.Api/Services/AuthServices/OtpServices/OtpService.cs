@@ -33,7 +33,6 @@ public class OtpService(IMemoryCache cache, IEmailService emailService) : IOtpSe
         }
 
         cache.Set(cacheKey, otpDetails.Value, TimeSpan.FromMinutes(AuthConfig.OtpValidForMinutes));
-
         return Result<OtpResponse>.Success(new OtpResponse { OtpExpiresAt = otpDetails.ExpiresAt });
     }
 

@@ -6,12 +6,12 @@ import { OAuthButtonGroup } from "../OAuthButtonGroup";
 import { CustomFormHeader, CustomTextField } from "../CustomInputs";
 import { AuthFooter } from "../AuthFooter";
 
-type usernameAndEmailProps = {
+type EmailStepProps = {
   handleNext: () => void;
   isPending: boolean;
 };
 
-export function Email({ handleNext, isPending }: usernameAndEmailProps) {
+export function EmailStep({ handleNext, isPending }: EmailStepProps) {
   return (
     <Stack gap={3.5} paddingInline="1rem">
       <CustomFormHeader
@@ -26,6 +26,7 @@ export function Email({ handleNext, isPending }: usernameAndEmailProps) {
         fieldValue="email"
         startIcon={<EmailOutlinedIcon />}
         autoComplete="email"
+        autoFocus
       />
 
       <Button

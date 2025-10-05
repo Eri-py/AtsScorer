@@ -4,24 +4,26 @@ import LockIcon from "@mui/icons-material/Lock";
 
 import { CustomFormHeader, CustomTextField } from "../CustomInputs";
 
-type PasswordProps = {
+type PasswordStepProps = {
   isPending: boolean;
 };
 
-export function Password({ isPending }: PasswordProps) {
+export function PasswordStep({ isPending }: PasswordStepProps) {
   return (
     <Stack gap="0.75rem" paddingInline="1rem">
       <CustomFormHeader
         header="Create a strong password"
         subtext="We will never ask you for your password."
-        align="flex-start"
+        align="center"
       />
+
       <CustomTextField
         type="password"
         label="Password"
         fieldValue="password"
         startIcon={<LockIcon />}
         autoComplete="new-password"
+        autoFocus
       />
 
       <CustomTextField

@@ -21,7 +21,7 @@ namespace AtsScorer.Api.Controllers
         [HttpPost("verify-otp")]
         public IActionResult VerifySignUpOtp([FromBody] VerifyOtpRequest request)
         {
-            var result = signUpService.VerifyOtpAsync(request);
+            var result = signUpService.VerifyOtp(request);
             return result.ToActionResult();
         }
 

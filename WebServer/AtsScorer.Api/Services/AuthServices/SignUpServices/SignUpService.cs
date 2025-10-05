@@ -3,13 +3,13 @@ using AtsScorer.Api.Dtos;
 using AtsScorer.Api.Services.AuthServices.OtpServices;
 using AtsScorer.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace AtsScorer.Api.Services.AuthServices.SignUpServices;
 
-public class SignUpService(AtsScorerDbContext context, IOtpService otpService, IMemoryCache cache)
-    : ISignUpService
+public class SignUpService(AtsScorerDbContext context, IOtpService otpService) : ISignUpService
 {
+    private const string purpose = "signup";
+
     public async Task<Result<OtpResponse>> StartSignUpAsync(StartSignUpRequest request)
     {
         // Check if user with email exists
@@ -20,36 +20,25 @@ public class SignUpService(AtsScorerDbContext context, IOtpService otpService, I
             return Result.Conflict("Email taken");
         }
 
-        var otpResult = await otpService.SendOtpAsync(email, "signup");
+        var otpResult = await otpService.SendOtpAsync(email, purpose);
         return otpResult;
     }
 
-    public Result VerifyOtpAsync(VerifyOtpRequest request)
+    public Result VerifyOtp(VerifyOtpRequest request)
     {
         var email = request.Email.ToLower();
         var otp = request.Otp;
+        return otpService.VerifyOtp(email, otp, purpose);
+    }
 
-        if (
-            cache.TryGetValue(email, out var cachedOtp)
-            && cachedOtp is not null
-            && otp == cachedOtp.ToString()
-        )
-        {
-            cache.Remove(email);
-            return Result.NoContent();
-        }
-        else
-        {
-            return Result.BadRequest("Invalid or expired verification code");
-        }
+    public async Task<Result<OtpResponse>> ResendOtpAsync(ResendOtpRequest request)
+    {
+        var email = request.Email.ToLower();
+        var otpResult = await otpService.SendOtpAsync(email, purpose);
+        return otpResult;
     }
 
     public Task<Result<AuthResult>> CompleteSignUpAsync(CompleteSignUpRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<OtpResponse>> ResendOtpAsync(ResendOtpRequest request)
     {
         throw new NotImplementedException();
     }

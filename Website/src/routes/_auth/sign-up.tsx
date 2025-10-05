@@ -5,13 +5,13 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
+import { useTheme } from "@mui/material/styles";
 
 import { HorizontalLinearStepper } from "@/components/shared/HorizontalLinearStepper";
-import { OtpPage } from "@/components/auth/OtpPage";
-import { Password } from "@/components/auth/sign-up/Password";
-import { Email } from "@/components/auth/sign-up/Email";
+import { OtpStep } from "@/components/auth/OtpStep";
+import { PasswordStep } from "@/components/auth/sign-up/PasswordStep";
+import { EmailStep } from "@/components/auth/sign-up/EmailStep";
 import { emailSchema, passwordSchema } from "@/components/auth/Schemas";
-import { useTheme } from "@mui/material/styles";
 import { useSignUp } from "@/hooks/auth/useSignUp";
 
 export const Route = createFileRoute("/_auth/sign-up")({
@@ -41,7 +41,7 @@ function SignUp() {
     otpExpiresAt,
     serverErrorMessage,
     clearServerError,
-    startSignUpAsync,
+    startSignUp,
     isStarting,
     verifyOtp,
     isVerifying,
@@ -65,7 +65,7 @@ function SignUp() {
       switch (step) {
         case 0: {
           const email = methods.getValues("email");
-          await startSignUpAsync({ email });
+          startSignUp({ email });
           break;
         }
         case 1: {
@@ -74,6 +74,18 @@ function SignUp() {
           verifyOtp({ email, otp });
           break;
         }
+      }
+    }
+  };
+
+  const onEnter = (e: React.KeyboardEvent) => {
+    console.log(e.key);
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission
+
+      // Only trigger next step if we're not on the final step
+      if (step < 2) {
+        handleNext();
       }
     }
   };
@@ -105,11 +117,11 @@ function SignUp() {
       )}
 
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          {step === 0 && <Email handleNext={handleNext} isPending={isStarting} />}
+        <form onSubmit={methods.handleSubmit(onSubmit)} onKeyDown={onEnter}>
+          {step === 0 && <EmailStep handleNext={handleNext} isPending={isStarting} />}
           {step === 1 && otpExpiresAt && (
-            <OtpPage
-              mode="register"
+            <OtpStep
+              mode="signup"
               email={methods.getValues("email")}
               intitialOtpExpiresAt={otpExpiresAt}
               handleNext={handleNext}
@@ -119,7 +131,7 @@ function SignUp() {
               isResending={isResendingOtp}
             />
           )}
-          {step === 2 && <Password isPending={isCompleting} />}
+          {step === 2 && <PasswordStep isPending={isCompleting} />}
         </form>
       </FormProvider>
     </Stack>
