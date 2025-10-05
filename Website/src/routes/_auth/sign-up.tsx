@@ -1,7 +1,6 @@
 import { useForm, FormProvider } from "react-hook-form";
 import { string, z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import Stack from "@mui/material/Stack";
@@ -10,7 +9,7 @@ import Alert from "@mui/material/Alert";
 import { HorizontalLinearStepper } from "@/components/shared/HorizontalLinearStepper";
 import { OtpPage } from "@/components/auth/OtpPage";
 import { Password } from "@/components/auth/sign-up/Password";
-import { UsernameAndEmail } from "@/components/auth/sign-up/Email";
+import { Email } from "@/components/auth/sign-up/Email";
 import { emailSchema, passwordSchema } from "@/components/auth/Schemas";
 import { useTheme } from "@mui/material/styles";
 import { useSignUp } from "@/hooks/auth/useSignUp";
@@ -35,17 +34,19 @@ const signUpSteps: Record<number, (keyof SignUpFormSchemaTypes)[]> = {
 const signUpStepLabels: string[] = ["Email", "Verification Code", "Password"];
 
 function SignUp() {
-  const [step, setStep] = useState<number>(0);
-  const [otpExpiresAt, setOtpExpiresAt] = useState<string | null>(null);
   const theme = useTheme();
   const {
-    serverError,
-    continueDisabled,
+    step,
+    setStep,
+    otpExpiresAt,
+    serverErrorMessage,
     clearServerError,
     startSignUpAsync,
     isStarting,
     verifyOtp,
     isVerifying,
+    resendOtpAsync,
+    isResendingOtp,
     completeSignUp,
     isCompleting,
   } = useSignUp();
@@ -64,29 +65,25 @@ function SignUp() {
       switch (step) {
         case 0: {
           const email = methods.getValues("email");
-          const response = await startSignUpAsync({ email });
-          setOtpExpiresAt(response.data.otpExpiresAt);
-          setStep(1);
+          await startSignUpAsync({ email });
           break;
         }
         case 1: {
           const email = methods.getValues("email");
           const otp = methods.getValues("otp");
           verifyOtp({ email, otp });
-          setStep(2);
           break;
         }
       }
     }
   };
 
-  const handleOtpExpiresAtUpdate = (newExpiresAt: string) => {
-    setOtpExpiresAt(newExpiresAt);
-  };
-
   const onSubmit = (formData: SignUpFormSchemaTypes) => {
     clearServerError();
-    completeSignUp(formData);
+    completeSignUp({
+      email: formData.email,
+      password: formData.password,
+    });
   };
 
   return (
@@ -99,42 +96,30 @@ function SignUp() {
         height: "fit-content",
       }}
     >
-      <HorizontalLinearStepper
-        steps={signUpStepLabels}
-        activeStep={step}
-        setActiveStep={(value) => setStep(value)}
-      />
+      <HorizontalLinearStepper steps={signUpStepLabels} activeStep={step} setActiveStep={setStep} />
 
-      {serverError !== null && (
+      {serverErrorMessage && (
         <Alert severity="error" sx={{ color: theme.palette.text.primary, fontSize: "1rem" }}>
-          {serverError}
+          {serverErrorMessage}
         </Alert>
       )}
 
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          {step === 0 && (
-            <UsernameAndEmail
-              handleNext={handleNext}
-              isPending={isStarting}
-              isContinueDisabled={continueDisabled}
-            />
-          )}
+          {step === 0 && <Email handleNext={handleNext} isPending={isStarting} />}
           {step === 1 && otpExpiresAt && (
             <OtpPage
+              mode="register"
               email={methods.getValues("email")}
-              otpExpiresAt={otpExpiresAt}
+              intitialOtpExpiresAt={otpExpiresAt}
               handleNext={handleNext}
               handleBack={() => setStep(0)}
               isPending={isVerifying}
-              isContinueDisabled={continueDisabled}
-              onOtpExpiresAtUpdate={handleOtpExpiresAtUpdate}
-              mode="register"
+              resendOtpAsync={resendOtpAsync}
+              isResending={isResendingOtp}
             />
           )}
-          {step === 2 && (
-            <Password isPending={isCompleting} isContinueDisabled={continueDisabled} />
-          )}
+          {step === 2 && <Password isPending={isCompleting} />}
         </form>
       </FormProvider>
     </Stack>

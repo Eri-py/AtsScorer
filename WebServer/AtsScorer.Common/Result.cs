@@ -1,4 +1,4 @@
-namespace AtsScorer.Api.Results;
+namespace AtsScorer.Common;
 
 /// <summary>
 /// Defines the possible outcome types for operations.

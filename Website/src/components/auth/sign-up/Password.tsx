@@ -6,10 +6,9 @@ import { CustomFormHeader, CustomTextField } from "../CustomInputs";
 
 type PasswordProps = {
   isPending: boolean;
-  isContinueDisabled: boolean;
 };
 
-export function Password({ isPending, isContinueDisabled }: PasswordProps) {
+export function Password({ isPending }: PasswordProps) {
   return (
     <Stack gap="0.75rem" paddingInline="1rem">
       <CustomFormHeader
@@ -33,13 +32,7 @@ export function Password({ isPending, isContinueDisabled }: PasswordProps) {
         autoComplete="new-password"
       />
 
-      <Button
-        type="submit"
-        variant="contained"
-        size="large"
-        loading={isPending}
-        disabled={isContinueDisabled}
-      >
+      <Button type="submit" variant="contained" size="large" loading={isPending}>
         Sign up
       </Button>
     </Stack>

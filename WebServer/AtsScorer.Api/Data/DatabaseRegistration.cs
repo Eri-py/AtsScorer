@@ -5,7 +5,7 @@ namespace AtsScorer.Api.Data;
 
 public static class DatabaseRegistration
 {
-    public static void AddDatabase(this IServiceCollection services, IConfiguration configs)
+    public static void AddDatabases(this IServiceCollection services, IConfiguration configs)
     {
         var environment = configs["ASPNETCORE_ENVIRONMENT"];
         if (environment == "Development")

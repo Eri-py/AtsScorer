@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Controller, get, useFormContext } from "react-hook-form";
 import Countdown, { zeroPad } from "react-countdown";
-import { parseISO } from "date-fns";
+import type { AxiosResponse } from "axios";
 
 import { useTheme } from "@mui/material/styles";
 import { MuiOtpInput } from "mui-one-time-password-input";
@@ -11,49 +11,49 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
-// import { resendOtp, type resendOtpRequest } from "@/api/AuthApi";
 import { CustomFormHeader } from "./CustomInputs";
+import type { ResendOtpResponse } from "@/hooks/auth/useSignUp";
 
 type OtpPageProps = {
   email: string;
-  otpExpiresAt: string;
-  isContinueDisabled: boolean;
+  intitialOtpExpiresAt: Date;
   handleBack: () => void;
   isPending: boolean;
-  onOtpExpiresAtUpdate: (newExpiresAt: string) => void;
   mode: "login" | "register";
   handleNext?: () => void;
+  resendOtpAsync: (data: { email: string }) => Promise<AxiosResponse<ResendOtpResponse>>;
+  isResending: boolean;
 };
 
 export function OtpPage({
   email,
-  otpExpiresAt,
-  isContinueDisabled,
+  intitialOtpExpiresAt,
   handleBack,
   isPending,
-  onOtpExpiresAtUpdate,
   mode,
   handleNext,
+  resendOtpAsync,
+  isResending,
 }: OtpPageProps) {
   const theme = useTheme();
   const { control } = useFormContext();
 
-  const [endTime, setEndTime] = useState(parseISO(otpExpiresAt).getTime());
+  const [endTime, setEndTime] = useState(intitialOtpExpiresAt.getTime());
   const [isResendDisabled, setIsResendDisabled] = useState<boolean>(true);
 
-  // const resendOtpMutation = useMutation({
-  //   mutationFn: (data: resendOtpRequest) => resendOtp(data),
-  //   onSuccess: (response: AxiosResponse) => {
-  //     const newExpiresAt = response.data;
-  //     const newEndTime = parseISO(newExpiresAt).getTime();
-  //     setEndTime(newEndTime);
-  //     setIsResendDisabled(true);
-  //     onOtpExpiresAtUpdate(newExpiresAt);
-  //   },
-  // });
-
   const handleResend = async () => {
-    // resendOtpMutation.mutate({ identifier: email });
+    const response = await resendOtpAsync({ email });
+    const newEndTime = new Date(response.data.otpExpiresAt).getTime();
+    setEndTime(newEndTime);
+    setIsResendDisabled(true);
+
+    // Re-enable resend button after 1/5th of the timer
+    setTimeout(
+      () => {
+        setIsResendDisabled(false);
+      },
+      (newEndTime - Date.now()) / 5
+    );
   };
 
   return (
@@ -131,13 +131,14 @@ export function OtpPage({
           Didn't get the Code?{" "}
           <Link
             component="button"
-            underline="always"
-            disabled={false} //resendOtpMutation.isPending}
+            type="button"
+            underline="hover"
+            disabled={isResending}
             onClick={handleResend}
             sx={{
-              "&:hover": {
-                background: "none",
-              },
+              cursor: isResending ? "not-allowed" : "pointer",
+              color: theme.palette.primary.main,
+              fontWeight: 500,
             }}
           >
             Resend Code
@@ -151,7 +152,6 @@ export function OtpPage({
         variant="contained"
         onClick={mode === "register" ? handleNext : undefined}
         loading={isPending}
-        disabled={isContinueDisabled}
       >
         {mode === "login" ? "Submit" : "Continue"}
       </Button>

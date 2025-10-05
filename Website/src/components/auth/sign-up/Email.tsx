@@ -9,14 +9,9 @@ import { AuthFooter } from "../AuthFooter";
 type usernameAndEmailProps = {
   handleNext: () => void;
   isPending: boolean;
-  isContinueDisabled: boolean;
 };
 
-export function UsernameAndEmail({
-  handleNext,
-  isPending,
-  isContinueDisabled,
-}: usernameAndEmailProps) {
+export function Email({ handleNext, isPending }: usernameAndEmailProps) {
   return (
     <Stack gap={3.5} paddingInline="1rem">
       <CustomFormHeader
@@ -39,7 +34,6 @@ export function UsernameAndEmail({
         type="button"
         onClick={handleNext}
         loading={isPending}
-        disabled={isContinueDisabled}
       >
         Continue
       </Button>
