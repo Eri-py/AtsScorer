@@ -12,5 +12,5 @@ public class RefreshTokenEntity
     public required Guid UserId { get; set; }
 
     // Navigation property
-    public required UserEntity User { get; set; }
+    public UserEntity? User { get; set; }
 }

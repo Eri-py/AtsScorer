@@ -79,7 +79,6 @@ function SignUp() {
   };
 
   const onEnter = (e: React.KeyboardEvent) => {
-    console.log(e.key);
     if (e.key === "Enter") {
       e.preventDefault(); // Prevent form submission
 

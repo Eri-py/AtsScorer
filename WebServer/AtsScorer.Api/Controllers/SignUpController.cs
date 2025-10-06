@@ -1,5 +1,6 @@
 using AtsScorer.Api.Dtos;
 using AtsScorer.Api.Extensions;
+using AtsScorer.Api.Services.AuthServices;
 using AtsScorer.Api.Services.AuthServices.SignUpServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,21 @@ namespace AtsScorer.Api.Controllers
         {
             var result = await signUpService.ResendOtpAsync(request);
             return result.ToActionResult();
+        }
+
+        [HttpPost("complete")]
+        public async Task<ActionResult<AuthResult>> ResendOtp(
+            [FromBody] CompleteSignUpRequest request
+        )
+        {
+            var result = await signUpService.CompleteSignUpAsync(request);
+            if (!result.IsSuccess)
+            {
+                return result.ToActionResult();
+            }
+
+            CookieHelper.SetAuthCookies(HttpContext, result.Content!);
+            return NoContent();
         }
     }
 }

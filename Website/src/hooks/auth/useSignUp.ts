@@ -42,7 +42,7 @@ const verifyOtpApi = (data: VerifyOtpRequest) => {
 };
 
 const resendOtpApi = (data: ResendOtpRequest) => {
-  return axiosInstance.post<ResendOtpResponse>("resend-otp", data);
+  return axiosInstance.post<ResendOtpResponse>("sign-up/resend-otp", data);
 };
 
 const completeSignUpApi = (data: CompleteSignUpRequest) => {
@@ -66,17 +66,13 @@ export function useSignUp() {
 
   const verifyOtpMutation = useMutation({
     mutationFn: (data: VerifyOtpRequest) => verifyOtpApi(data),
-    onSuccess: () => {
-      setStep(2);
-    },
+    onSuccess: () => setStep(2),
     onError: (error: ServerError) => handleServerError(error),
   });
 
   const resendOtpMutation = useMutation({
     mutationFn: (data: ResendOtpRequest) => resendOtpApi(data),
-    onSuccess: (response) => {
-      setOtpExpiresAt(new Date(response.data.otpExpiresAt));
-    },
+    onSuccess: (response) => setOtpExpiresAt(new Date(response.data.otpExpiresAt)),
     onError: (error: ServerError) => handleServerError(error),
   });
 
