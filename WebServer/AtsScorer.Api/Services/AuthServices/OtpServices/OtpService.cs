@@ -46,6 +46,11 @@ public class OtpService(IMemoryCache cache, IEmailService emailService) : IOtpSe
         }
 
         cache.Remove(cacheKey);
+
+        // Mark email as verified for this purpose
+        var verifiedKey = $"verified_{purpose}_{email}";
+        cache.Set(verifiedKey, true, TimeSpan.FromMinutes(15));
+
         return Result.NoContent();
     }
 }
