@@ -25,14 +25,7 @@ function AppLayout() {
           direction="column"
           height={{ xs: "calc(100dvh - 2.75rem - 3rem)", md: "calc(100dvh - 3.75rem)" }}
         >
-          <Stack
-            direction={isDesktop ? "row" : "column"}
-            flex={1}
-            overflow="hidden"
-            gap={isDesktop ? 2 : 0}
-          >
-            <Outlet />
-          </Stack>
+          <Outlet />
         </Stack>
       </Stack>
     </AuthProvider>

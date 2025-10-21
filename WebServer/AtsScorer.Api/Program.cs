@@ -1,4 +1,5 @@
 using AtsScorer.Api.Data;
+using AtsScorer.Api.Services.AnalyseResumeServices;
 using AtsScorer.Api.Services.AuthServices;
 using AtsScorer.Api.Services.EmailServices;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddDatabases(builder.Configuration);
 builder.Services.AddAuthServices(builder.Configuration);
 builder.Services.AddEmailServices(builder.Environment);
+builder.Services.AddResumeAnalysisServices(builder.Configuration);
 
 var app = builder.Build();
 

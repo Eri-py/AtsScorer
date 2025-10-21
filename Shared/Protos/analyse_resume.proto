@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package analyse_resume;
+
+option csharp_namespace = "AtsScorer.Api.GrpcContracts";
+
+// The service definition - what functions are available
+service AnalyseResume {
+  rpc AnalyzeResume (AnalyseResumeRequest) returns (AnalyseResumeResponse);
+}
+
+// The request message containing the resume and job description
+message AnalyseResumeRequest {
+  bytes file = 1;   
+  string file_name = 2;           
+  string job_description = 3;
+}
+
+// The response message containing analysis results
+message AnalyseResumeResponse {
+  string status = 1;
+  double match_score = 2;
+  string feedback = 3;
+  repeated string missing_keywords = 4;
+  map<string, string> skills_analysis = 5;
+}

@@ -1,7 +1,9 @@
+import { useBreakpoint } from "@/hooks/shared/useBreakpoint";
 import Box from "@mui/material/Box";
 import type { ReactNode } from "react";
 
 export function NavbarContainer({ children }: { children: ReactNode }) {
+  const { isDesktop } = useBreakpoint();
   return (
     <Box
       component="header"
@@ -11,7 +13,7 @@ export function NavbarContainer({ children }: { children: ReactNode }) {
         left: 0,
         zIndex: 1100,
         backgroundColor: "background.default",
-        height: "fit-content",
+        height: isDesktop ? "3.75rem" : "2.75rem",
       }}
     >
       {children}

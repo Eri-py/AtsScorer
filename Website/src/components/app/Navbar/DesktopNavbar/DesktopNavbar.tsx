@@ -11,7 +11,7 @@ export function DesktopNavbar() {
         variant="dense"
         sx={{
           justifyContent: "space-between",
-          paddingInline: "1.35rem !important",
+          paddingInline: "1rem !important",
           paddingBlock: "0.5rem",
         }}
       >
