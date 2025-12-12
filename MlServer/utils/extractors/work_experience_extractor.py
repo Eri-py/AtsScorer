@@ -60,17 +60,17 @@ class WorkExperienceExtractor:
 
             # Validate it's a list
             if not isinstance(parsed, list):
-                return 
+                return None
             
             # Validate each item is a dict
             for item in parsed:
                 if not isinstance(item, dict):
-                    return 
+                    return None 
             
             return parsed
             
         except json.JSONDecodeError as e:
-            return 
+            return None
     
     def _process_work_experience(self, response: str) -> list[WorkExperience]:
         cleaned_response = self._clean_and_parse_json(response) 
@@ -89,7 +89,7 @@ class WorkExperienceExtractor:
 
         return result
             
-    def extract_work_experience(self):
+    def extract_work_experience(self) -> list[WorkExperience]:
         # Generate prompt
         self._create_prompt()
 
@@ -102,7 +102,7 @@ class WorkExperienceExtractor:
             tokenize=False,
             add_generation_prompt=True,
             enable_thinking=False,
-            )
+        )
             
         model_inputs = self.tokenizer([text], return_tensors="pt").to(self.model.device)
 

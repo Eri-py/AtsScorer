@@ -11,13 +11,14 @@ class ModelLoader:
     _tokenizer = None
 
     def __new__(cls) -> Self:
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
         return cls._instance
 
     def load_model(self) -> None:
         with self._lock:
-            if self._model or self._tokenizer:
+            if self._model and self._tokenizer:
                 return
 
             model_name = "Qwen/Qwen3-4B"
@@ -40,8 +41,6 @@ class ModelLoader:
 
             # Load tokenizer
             self._tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-            self._is_loaded = True
 
             print(f"{model_name} loaded on GPU" if "cuda" in str(self._model.device) else f"{model_name} loaded on CPU")
     
