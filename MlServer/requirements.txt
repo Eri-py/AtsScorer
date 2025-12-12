@@ -1,2 +1,8 @@
-grpcio-tools==1.75.1
-pypdf==6.1.2
+accelerate
+bitsandbytes
+grpcio-tools
+ipykernel
+ipywidgets
+pymupdf
+pytesseract
+transformers
