@@ -1,2 +1,3 @@
 from .contact_extractor import ContactInfo, ContactExtractor
 from .work_experience_extractor import WorkExperience, WorkExperienceExtractor
+from .education_extractor import Education, EducationExtractor
