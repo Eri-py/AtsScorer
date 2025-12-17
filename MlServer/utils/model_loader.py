@@ -21,7 +21,7 @@ class ModelLoader:
             if self._model and self._tokenizer:
                 return
 
-            model_name = "Qwen/Qwen3-4B"
+            model_name = "Qwen/Qwen3-4B-Instruct-2507"
             print(f"Loading {model_name}...")
 
             # Configuration for 4-bit quantization
