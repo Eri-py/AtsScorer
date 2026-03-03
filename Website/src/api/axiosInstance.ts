@@ -27,7 +27,11 @@ const processQueue = (error: unknown) => {
 
 axiosInstance.interceptors.response.use(undefined, async (error: AxiosError) => {
   const originalRequest = error.config;
-  if (error.response?.status === 401 && originalRequest) {
+
+  // Don't intercept refresh-token requests (prevents deadlock)
+  const isRefreshRequest = originalRequest?.url?.includes("auth/refresh-token");
+
+  if (error.response?.status === 401 && originalRequest && !isRefreshRequest) {
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -41,7 +45,6 @@ axiosInstance.interceptors.response.use(undefined, async (error: AxiosError) => 
       return axiosInstance.request(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
-      // Redirect to login on refresh failure
       window.location.href = "/login";
       return Promise.reject(refreshError);
     } finally {

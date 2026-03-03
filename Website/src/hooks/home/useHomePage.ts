@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { axiosInstance } from "@/api/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
+import type { AnalysisResult } from "./types";
 
 type StartResumeAnalysisRequest = {
   file: File;
@@ -10,7 +11,7 @@ type StartResumeAnalysisRequest = {
 };
 
 const startResumeAnalysisApi = (data: FormData) => {
-  return axiosInstance.post("analyse-resume", data);
+  return axiosInstance.post<AnalysisResult>("analyse-resume", data);
 };
 
 const jobDescriptionSchema = z.string().min(1, "Job description is required");
@@ -18,9 +19,13 @@ const jobDescriptionSchema = z.string().min(1, "Job description is required");
 export function useHomePage() {
   const [jobDescription, setJobDescription] = useState("");
   const [jobDescriptionError, setJobDescriptionError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
   const startResumeAnalysisMutation = useMutation({
     mutationFn: (data: FormData) => startResumeAnalysisApi(data),
+    onSuccess: (response) => {
+      setAnalysisResult(response.data);
+    },
   });
 
   const submitAnalysis = (data: StartResumeAnalysisRequest) => {
@@ -48,6 +53,10 @@ export function useHomePage() {
     validateJobDescription(value);
   };
 
+  const resetAnalysis = () => {
+    setAnalysisResult(null);
+  };
+
   return {
     // Job Description
     jobDescription,
@@ -58,5 +67,7 @@ export function useHomePage() {
 
     submitAnalysis,
     isSubmitting: startResumeAnalysisMutation.isPending,
+    analysisResult,
+    resetAnalysis,
   };
 }

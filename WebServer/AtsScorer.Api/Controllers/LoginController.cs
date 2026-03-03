@@ -11,7 +11,7 @@ namespace AtsScorer.Api.Controllers;
 public class LoginController(ILoginService loginService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<AuthResult>> Login([FromBody] LoginRequest request)
     {
         var result = await loginService.LoginAsync(request);
         if (!result.IsSuccess)

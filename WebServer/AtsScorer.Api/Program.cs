@@ -48,7 +48,10 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseCors(builder.Configuration["ClientOrigin:Name"]!);
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors(builder.Configuration["ClientOrigin:Name"]!);
+}
 
 app.UseHttpsRedirection();
 

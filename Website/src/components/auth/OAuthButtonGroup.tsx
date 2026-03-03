@@ -27,9 +27,9 @@ export function OAuthButtonGroup() {
         <Divider sx={{ flexGrow: 1 }} />
       </Box>
 
-      <Button variant="outlined" size="large" type="button" sx={{ gap: 1 }}>
+      <Button variant="outlined" size="large" type="button" sx={{ gap: 1, opacity: 0.6 }} disabled>
         <GoogleIcon width="1.5rem" />
-        <Typography color="textPrimary">Sign up with Google</Typography>
+        <Typography color="textPrimary">Sign up with Google (Coming soon)</Typography>
       </Button>
 
       <Divider sx={{ borderColor: theme.palette.divider }} />

@@ -5,6 +5,7 @@ ipykernel
 ipywidgets
 openai
 pypdf
+python-docx
 pymupdf
 pytesseract
 transformers

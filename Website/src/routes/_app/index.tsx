@@ -11,6 +11,7 @@ import { HomeHeader } from "@/components/home/HomeHeader";
 import { UploadArea } from "@/components/home/UploadArea";
 import { FilePreview } from "@/components/home/FilePreview";
 import { ContinueButton } from "@/components/home/ContinueButton";
+import { AnalysisResults } from "@/components/home/AnalysisResults";
 import { useFileUpload } from "@/hooks/home/useFileUpload";
 import { useHomePage } from "@/hooks/home/useHomePage";
 
@@ -30,6 +31,8 @@ function HomePage() {
     handleJobDescriptionChange,
     submitAnalysis,
     isSubmitting,
+    analysisResult,
+    resetAnalysis,
   } = useHomePage();
 
   // Handlers
@@ -44,6 +47,12 @@ function HomePage() {
     if (step === 1) {
       setStep(0);
     }
+  };
+
+  const handleReset = () => {
+    resetAnalysis();
+    removeFile();
+    setStep(0);
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -70,26 +79,37 @@ function HomePage() {
         </Stack>
       )}
 
-      {/* Main Form */}
-      <form onSubmit={onSubmit}>
+      {/* Analysis Results */}
+      {analysisResult ? (
         <Stack
           width={800}
-          alignItems="center"
           boxShadow={`0px 0px 2px ${theme.palette.primary.main}`}
           borderRadius={3}
-          padding={2}
-          gap={4}
+          padding={3}
         >
-          {/* Step Indicator */}
-          <MobileStepper
-            variant="dots"
-            steps={2}
-            position="static"
-            activeStep={step}
-            sx={{ maxWidth: 400, flexGrow: 1 }}
-            backButton={undefined}
-            nextButton={undefined}
-          />
+          <AnalysisResults result={analysisResult} onReset={handleReset} />
+        </Stack>
+      ) : (
+        /* Main Form */
+        <form onSubmit={onSubmit}>
+          <Stack
+            width={800}
+            alignItems="center"
+            boxShadow={`0px 0px 2px ${theme.palette.primary.main}`}
+            borderRadius={3}
+            padding={2}
+            gap={4}
+          >
+            {/* Step Indicator */}
+            <MobileStepper
+              variant="dots"
+              steps={2}
+              position="static"
+              activeStep={step}
+              sx={{ maxWidth: 400, flexGrow: 1 }}
+              backButton={undefined}
+              nextButton={undefined}
+            />
 
           {/* Step 0: Upload Resume */}
           {step === 0 && (
@@ -133,8 +153,9 @@ function HomePage() {
           {file && (
             <ContinueButton handleNext={handleNext} step={step} isSubmitting={isSubmitting} />
           )}
-        </Stack>
-      </form>
+          </Stack>
+        </form>
+      )}
     </Stack>
   );
 }

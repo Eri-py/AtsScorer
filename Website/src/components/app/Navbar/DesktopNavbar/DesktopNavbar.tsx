@@ -1,10 +1,13 @@
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
+import { useNavigate } from "@tanstack/react-router";
 
 import { NavbarContainer } from "../NavbarContainer";
 import { RightButtonGroup } from "./RightButtonGroup";
 
 export function DesktopNavbar() {
+  const navigate = useNavigate();
+
   return (
     <NavbarContainer>
       <Toolbar
@@ -18,13 +21,17 @@ export function DesktopNavbar() {
         <Button
           variant="text"
           disableRipple
+          onClick={() => navigate({ to: "/" })}
           sx={{
+            fontSize: "1.1rem",
+            fontWeight: 600,
+            textTransform: "none",
             "&:hover": {
               background: "none",
             },
           }}
         >
-          Project icon
+          ATS Scorer
         </Button>
 
         <RightButtonGroup />

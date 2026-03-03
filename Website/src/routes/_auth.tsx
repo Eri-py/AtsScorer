@@ -19,6 +19,9 @@ function AuthLayout() {
           variant="text"
           disableRipple
           sx={{
+            fontSize: "1.1rem",
+            fontWeight: 600,
+            textTransform: "none",
             "&:hover": {
               background: "none",
             },
@@ -28,7 +31,7 @@ function AuthLayout() {
           }}
           onClick={() => navigate({ to: "/" })}
         >
-          Project icon
+          ATS Scorer
         </Button>
       )}
       <Outlet />

@@ -1,15 +1,18 @@
+using AtsScorer.Api.Extensions;
 using AtsScorer.Api.GrpcContracts;
 using AtsScorer.Api.Services.AnalyseResumeServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtsScorer.Api.Controllers
 {
+    [Authorize]
     [Route("api/analyse-resume")]
     [ApiController]
     public class AnalyseResumeController(IAnalyseResumeService analyseResume) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> AnalyseResume(
+        public async Task<ActionResult<AnalyseResumeResponse>> AnalyseResume(
             [FromForm] IFormFile file,
             [FromForm] string fileName,
             [FromForm] string jobDescription
@@ -20,7 +23,7 @@ namespace AtsScorer.Api.Controllers
                 fileName: fileName,
                 jobDescription: jobDescription
             );
-            return Ok(analysisResult);
+            return analysisResult.ToActionResult();
         }
     }
 }
