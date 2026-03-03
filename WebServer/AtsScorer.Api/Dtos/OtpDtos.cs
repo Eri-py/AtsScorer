@@ -32,9 +32,8 @@ public record ResendOtpRequest
 public record OtpResponse
 {
     /// <summary>
-    /// The email address for the new account. Must be valid and unique.
+    /// The UTC expiry time of the OTP sent to the user.
     /// </summary>
     [Required]
-    [EmailAddress]
     public required DateTime OtpExpiresAt { get; set; }
 }

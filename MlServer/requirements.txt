@@ -3,6 +3,8 @@ bitsandbytes
 grpcio-tools
 ipykernel
 ipywidgets
+openai
+pypdf
 pymupdf
 pytesseract
 transformers

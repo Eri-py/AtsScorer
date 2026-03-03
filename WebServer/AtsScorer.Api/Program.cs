@@ -52,6 +52,7 @@ app.UseCors(builder.Configuration["ClientOrigin:Name"]!);
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

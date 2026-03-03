@@ -58,7 +58,11 @@ public class MailtrapEmailService(IConfiguration configuration) : IEmailService
         );
         var htmlTemplate = await File.ReadAllTextAsync(templatePath);
 
-        var htmlBody = htmlTemplate.Replace("{{Otp}}", otp).Replace("{{OtpValidFor}}", otpValidFor);
+        var username = to.Split('@')[0];
+        var htmlBody = htmlTemplate
+            .Replace("{{Otp}}", otp)
+            .Replace("{{OtpValidFor}}", otpValidFor)
+            .Replace("{{Username}}", username);
 
         var emailResult = await SendEmailAsync(to, "Verify Your Email Address", htmlBody);
         return emailResult;

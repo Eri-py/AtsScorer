@@ -1,4 +1,5 @@
 using System.Text;
+using AtsScorer.Api.Services.AuthServices.LoginService;
 using AtsScorer.Api.Services.AuthServices.OtpServices;
 using AtsScorer.Api.Services.AuthServices.SignUpServices;
 using AtsScorer.Api.Services.AuthServices.TokenServices;
@@ -42,5 +43,6 @@ public static class AuthServicesRegistration
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<ISignUpService, SignUpService>();
+        services.AddScoped<ILoginService, LoginService.LoginService>();
     }
 }
