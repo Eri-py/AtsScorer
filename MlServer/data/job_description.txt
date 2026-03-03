@@ -1,35 +1,33 @@
-Job brief
-We are looking for a Computer Scientist to join our team and help our departments automate aspects of their jobs to produce a better product in less time. 
+Job Title: Software Engineer
 
-A Computer Scientist’s responsibilities include experimenting with various solutions based on the needs of our departments and applying artificial intelligence and AI technologies as needed. 
-
-Ultimately, you will work with various departments in our organization to understand their needs and then find ways to apply computer technologies to make processes more efficient. 
+About the Role
+We are seeking a talented Software Engineer to join our growing engineering team. You will design, develop, and maintain software applications that power our products and internal tools. You'll collaborate closely with product managers, designers, and fellow engineers to deliver high-quality solutions in an agile environment.
 
 Responsibilities
-Studying, experimenting, and investigating technological fields such as artificial intelligence, robotics, and virtual reality
-Seeking to improve the performance of existing computer systems and software
-Developing new hardware or computing techniques and materials
-Thinking about and conceptualizing computational and maths-related problems and challenges
-Designing and implementing algorithms and data structures to solve complex computational problems
-Conducting research to advance the field of computer science and contribute to scientific publications
-Collaborating with multidisciplinary teams to develop innovative solutions that integrate computer science with other domains
-Analyzing and interpreting data to derive meaningful insights and inform decision-making processes
-Testing and evaluating computer systems and software to ensure functionality, reliability, and security
-Keeping up-to-date with the latest advancements in technology and continuously expanding knowledge and skills
-Mentoring and providing guidance to junior team members or students pursuing studies in computer science
-Participating in professional conferences, workshops, and seminars to exchange knowledge and network with peers in the field
-Adhering to ethical standards and maintaining the security and privacy of data and systems.
-Requirements and skills
-Proven work experience as a Computer Scientist or similar role
-The ability to think through problems and find solutions with various computer technologies
-Experience working with leaders in an organization to identify their needs
-Strong programming skills in languages such as Python, Java, C++, or others, depending on the specific field of focus
-Proficiency in data analysis, machine learning, or artificial intelligence techniques and tools
-Knowledge of software development methodologies and practices, including agile methodologies and version control systems
-Familiarity with database management systems and SQL for efficient data storage and retrieval
-Excellent problem-solving and critical-thinking abilities to tackle complex computational and mathematical challenges
-Strong communication and interpersonal skills to collaborate effectively with team members and stakeholders
-Ability to adapt to evolving technologies and learn new programming languages and frameworks quickly
-Understanding of computer architecture and operating systems principles
-Knowledge of cybersecurity principles and practices to ensure the security of computer systems and data
-A bachelor’s or master’s degree in computer science or a related field, or equivalent work experience and certifications.
+- Design, build, and maintain efficient, reusable, and reliable code
+- Collaborate with cross-functional teams to define, design, and ship new features
+- Participate in code reviews to ensure code quality and share knowledge with the team
+- Write unit and integration tests to ensure software reliability
+- Troubleshoot, debug, and resolve software defects and performance bottlenecks
+- Contribute to system architecture decisions and technical documentation
+- Participate in agile ceremonies including sprint planning, daily standups, and retrospectives
+- Stay current with emerging technologies and industry trends
+- Mentor junior developers and contribute to a positive engineering culture
+
+Requirements
+- Bachelor's degree in Computer Science, Software Engineering, or a related field
+- 2+ years of professional software development experience
+- Proficiency in one or more programming languages such as Python, Java, C#, or TypeScript
+- Experience with web frameworks (e.g., React, Angular, ASP.NET, Django, or Spring Boot)
+- Familiarity with relational databases (PostgreSQL, MySQL) and SQL
+- Understanding of RESTful API design and microservices architecture
+- Experience with version control systems (Git) and CI/CD pipelines
+- Knowledge of cloud platforms (AWS, Azure, or GCP) is a plus
+- Strong problem-solving skills and attention to detail
+- Excellent communication and teamwork abilities
+
+Nice to Have
+- Experience with containerization (Docker, Kubernetes)
+- Familiarity with message queues (RabbitMQ, Kafka)
+- Exposure to DevOps practices and infrastructure as code
+- Contributions to open-source projects

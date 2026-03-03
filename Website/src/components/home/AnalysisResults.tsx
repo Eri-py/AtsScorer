@@ -15,15 +15,15 @@ type AnalysisResultsProps = {
   onReset: () => void;
 };
 
-function getScoreColor(score: number) {
-  if (score >= 75) return "success";
-  if (score >= 50) return "warning";
-  return "error";
+function getScoreLabel(score: number): { label: string; color: "success" | "warning" | "error" } {
+  if (score >= 75) return { label: "Good", color: "success" };
+  if (score >= 50) return { label: "Average", color: "warning" };
+  return { label: "Poor", color: "error" };
 }
 
 function ScoreDisplay({ score }: { score: number }) {
   const theme = useTheme();
-  const color = getScoreColor(score);
+  const { label, color } = getScoreLabel(score);
 
   return (
     <Stack alignItems="center" gap={1.5}>
@@ -32,7 +32,7 @@ function ScoreDisplay({ score }: { score: number }) {
       </Typography>
       <Box position="relative" display="inline-flex" alignItems="center" justifyContent="center">
         <Typography variant="h2" fontWeight={600} color={`${color}.main`}>
-          {Math.round(score)}%
+          {label}
         </Typography>
       </Box>
       <LinearProgress

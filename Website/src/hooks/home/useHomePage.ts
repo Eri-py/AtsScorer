@@ -55,6 +55,8 @@ export function useHomePage() {
 
   const resetAnalysis = () => {
     setAnalysisResult(null);
+    setJobDescription("");
+    setJobDescriptionError(null);
   };
 
   return {

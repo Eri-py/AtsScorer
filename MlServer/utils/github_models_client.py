@@ -37,7 +37,15 @@ class GitHubModelsClient:
 
         system_prompt = (
             "You are an ATS evaluator. Compare a resume against a job description and "
-            "return only valid JSON with keys: score, feedback, missing_keywords, skills_analysis."
+            "return only valid JSON with keys: score, feedback, missing_keywords, skills_analysis.\n\n"
+            "Scoring rubric (be fair and holistic — do not penalize heavily for minor keyword gaps):\n"
+            "- 0.85–1.0: Strong match — most required skills and experience are present\n"
+            "- 0.70–0.84: Good match — core skills present, missing some nice-to-haves\n"
+            "- 0.50–0.69: Partial match — has relevant skills but gaps in key areas\n"
+            "- 0.30–0.49: Weak match — few relevant qualifications\n"
+            "- 0.00–0.29: Poor match — largely unrelated background\n\n"
+            "Give credit for transferable skills, related experience, and equivalent qualifications. "
+            "Do not require exact keyword matches — recognise synonyms and related terms."
         )
 
         user_prompt = (
