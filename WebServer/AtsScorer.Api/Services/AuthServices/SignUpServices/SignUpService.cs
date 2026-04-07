@@ -14,21 +14,24 @@ public class SignUpService(
     AtsScorerDbContext context,
     IOtpService otpService,
     ITokenService tokenService,
-    IMemoryCache cache
+    IMemoryCache cache,
+    ILogger<SignUpService> logger
 ) : ISignUpService
 {
     private const string purpose = "signup";
 
-    public async Task<Result<OtpResponse>> StartSignUpAsync(StartSignUpRequest request)
+    public async Task<Result<OtpResponse>> StartSignUpAsync(
+        StartSignUpRequest request,
+        CancellationToken ct
+    )
     {
-        // Check if user with email exists
         var email = request.Email.ToLower();
-        if (await IsExistingUser(email))
+        if (await IsExistingUser(email, ct))
         {
             return Result.Conflict("Email taken");
         }
 
-        var otpResult = await otpService.SendOtpAsync(email, purpose);
+        var otpResult = await otpService.SendOtpAsync(email, purpose, ct);
         return otpResult;
     }
 
@@ -39,14 +42,20 @@ public class SignUpService(
         return otpService.VerifyOtp(email, otp, purpose);
     }
 
-    public async Task<Result<OtpResponse>> ResendOtpAsync(ResendOtpRequest request)
+    public async Task<Result<OtpResponse>> ResendOtpAsync(
+        ResendOtpRequest request,
+        CancellationToken ct
+    )
     {
         var email = request.Email.ToLower();
-        var otpResult = await otpService.SendOtpAsync(email, purpose);
+        var otpResult = await otpService.SendOtpAsync(email, purpose, ct);
         return otpResult;
     }
 
-    public async Task<Result<AuthResult>> CompleteSignUpAsync(CompleteSignUpRequest request)
+    public async Task<Result<AuthResult>> CompleteSignUpAsync(
+        CompleteSignUpRequest request,
+        CancellationToken ct
+    )
     {
         var email = request.Email.ToLower();
 
@@ -58,7 +67,7 @@ public class SignUpService(
         }
 
         // Check if user already exists
-        if (await IsExistingUser(email))
+        if (await IsExistingUser(email, ct))
         {
             cache.Remove(verifiedKey);
             return Result.Conflict("Email taken");
@@ -67,10 +76,9 @@ public class SignUpService(
         var hasher = new PasswordHasher<UserEntity>();
         var passwordHash = hasher.HashPassword(null!, request.Password);
 
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await context.Database.BeginTransactionAsync(ct);
         try
         {
-            // Create user and add to database
             var user = new UserEntity
             {
                 Email = email,
@@ -79,26 +87,15 @@ public class SignUpService(
             };
             context.Users.Add(user);
 
-            // create refresh token and add to database
-            var refreshTokenDetails = tokenService.CreateRefreshToken(
-                AuthConfig.RefreshTokenValidForDays
-            );
-            var refreshTokenEntry = new RefreshTokenEntity
-            {
-                TokenHash = tokenService.HashToken(refreshTokenDetails.Value),
-                TokenExpiresAt = refreshTokenDetails.ExpiresAt,
-                UserId = user.Id,
-            };
-            user.RefreshTokens.Add(refreshTokenEntry);
+            var refreshTokenDetails = tokenService.CreateRefreshToken(user.Id);
+            user.RefreshTokens.Add(refreshTokenDetails.Entry);
 
-            // Save changes to database
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
 
             // Remove verification flag after successful signup
             cache.Remove(verifiedKey);
 
-            // Create access token and return all token informations
             var accessTokenDetails = tokenService.CreateAccessToken(
                 user,
                 AuthConfig.AccessTokenValidForMinutes
@@ -114,13 +111,18 @@ public class SignUpService(
                 }
             );
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(ct);
+            logger.LogError(
+                ex,
+                "Transaction failed during sign-up completion for email '{Email}'",
+                email
+            );
             return Result.InternalServerError("An unexpected error has occured");
         }
     }
 
-    private async Task<bool> IsExistingUser(string email) =>
-        await context.Users.AnyAsync(u => u.Email == email);
+    private async Task<bool> IsExistingUser(string email, CancellationToken ct) =>
+        await context.Users.AnyAsync(u => u.Email == email, ct);
 }

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
 import { useServerError, type ServerError } from "@/hooks/auth/useServerError";
 import { axiosInstance } from "@/api/axiosInstance";
+import { USER_DETAILS_QUERY_KEY } from "@/hooks/app/useAuth";
 
 // Types for API requests
 type StartSignUpRequest = {
@@ -54,6 +55,7 @@ export function useSignUp() {
   const [step, setStep] = useState<number>(0);
   const [otpExpiresAt, setOtpExpiresAt] = useState<Date | null>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const startSignUpMutation = useMutation({
     mutationFn: (data: StartSignUpRequest) => startSignUpApi(data),
@@ -78,7 +80,10 @@ export function useSignUp() {
 
   const completeSignUpMutation = useMutation({
     mutationFn: (data: CompleteSignUpRequest) => completeSignUpApi(data),
-    onSuccess: () => navigate({ to: "/" }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
+      navigate({ to: "/" });
+    },
     onError: (error: ServerError) => handleServerError(error),
   });
 

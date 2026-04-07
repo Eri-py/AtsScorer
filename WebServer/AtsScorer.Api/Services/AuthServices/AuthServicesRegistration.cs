@@ -44,5 +44,6 @@ public static class AuthServicesRegistration
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<ISignUpService, SignUpService>();
         services.AddScoped<ILoginService, LoginService.LoginService>();
+        services.AddScoped<IAuthService, AuthService>();
     }
 }

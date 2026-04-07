@@ -17,7 +17,7 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 import { NavbarContainer } from "./NavbarContainer";
-import { useAuth } from "@/hooks/app/useAuth";
+import { useAuth, USER_DETAILS_QUERY_KEY } from "@/hooks/app/useAuth";
 import { useThemeToggle } from "@/hooks/shared/useThemeToggle";
 import { axiosInstance } from "@/api/axiosInstance";
 
@@ -31,7 +31,7 @@ export function MobileNavbar() {
   const logoutMutation = useMutation({
     mutationFn: () => axiosInstance.post("auth/logout"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userDetails"] });
+      queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
       setDrawerOpen(false);
       navigate({ to: "/login" });
     },
@@ -75,7 +75,11 @@ export function MobileNavbar() {
 
           <List>
             <ListItemButton onClick={toggleTheme}>
-              {mode === "dark" ? <LightModeIcon sx={{ mr: 1.5 }} /> : <DarkModeIcon sx={{ mr: 1.5 }} />}
+              {mode === "dark" ? (
+                <LightModeIcon sx={{ mr: 1.5 }} />
+              ) : (
+                <DarkModeIcon sx={{ mr: 1.5 }} />
+              )}
               <ListItemText primary={mode === "dark" ? "Light Mode" : "Dark Mode"} />
             </ListItemButton>
 
@@ -88,6 +92,12 @@ export function MobileNavbar() {
                   <ListItemText primary="Sign Up" />
                 </ListItemButton>
               </>
+            )}
+
+            {isAuthenticated && (
+              <ListItemButton onClick={() => handleNavigate("/saved-files")}>
+                <ListItemText primary="My Files" />
+              </ListItemButton>
             )}
 
             {isAuthenticated && (

@@ -12,7 +12,7 @@ namespace AtsScorer.Api.Services.AuthServices.TokenServices;
 
 public class JwtService(IConfiguration configuration, AtsScorerDbContext context) : ITokenService
 {
-    public TokenDetails CreateAccessToken(UserEntity user, int tokenValidForMinutes)
+    public AccessTokenDetails CreateAccessToken(UserEntity user, int tokenValidForMinutes)
     {
         var claims = new List<Claim>
         {
@@ -32,14 +32,14 @@ public class JwtService(IConfiguration configuration, AtsScorerDbContext context
             signingCredentials: creds
         );
 
-        return new TokenDetails
+        return new AccessTokenDetails
         {
             Value = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor),
             ExpiresAt = expiresAt,
         };
     }
 
-    public TokenDetails CreateRefreshToken(int tokenValidForDays)
+    private static (string Value, DateTime ExpiresAt) GenerateRefreshToken(int tokenValidForDays)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         var token = new StringBuilder(64);
@@ -48,52 +48,77 @@ public class JwtService(IConfiguration configuration, AtsScorerDbContext context
             token.Append(chars[CryptoRandom.NextInt() % chars.Length]);
         }
 
-        return new TokenDetails
+        return (token.ToString(), DateTime.UtcNow.AddDays(tokenValidForDays));
+    }
+
+    public RefreshTokenDetails CreateRefreshToken(Guid userId)
+    {
+        var refreshTokenDetails = GenerateRefreshToken(AuthConfig.RefreshTokenValidForDays);
+        var refreshTokenEntry = new RefreshTokenEntity
         {
-            Value = token.ToString(),
-            ExpiresAt = DateTime.UtcNow.AddDays(tokenValidForDays),
+            TokenHash = HashToken(refreshTokenDetails.Value),
+            TokenExpiresAt = refreshTokenDetails.ExpiresAt,
+            UserId = userId,
+        };
+
+        return new RefreshTokenDetails
+        {
+            Value = refreshTokenDetails.Value,
+            ExpiresAt = refreshTokenDetails.ExpiresAt,
+            Entry = refreshTokenEntry,
         };
     }
 
     public string HashToken(string token) =>
         Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
-    public async Task<Result<AuthResult>> VerifyRefreshTokenAsync(string refreshToken)
+    public async Task<Result<AuthResult>> RotateRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct
+    )
     {
-        using var transaction = await context.Database.BeginTransactionAsync();
+        using var transaction = await context.Database.BeginTransactionAsync(ct);
         try
         {
-            var token = await context
+            var tokenEntry = await context
                 .RefreshTokens.Include(t => t.User)
-                .FirstOrDefaultAsync(t => t.TokenHash == HashToken(refreshToken));
+                .FirstOrDefaultAsync(t => t.TokenHash == HashToken(refreshToken), ct);
 
-            if (token is null)
-                return Result.NotFound("Invalid refresh token");
+            if (
+                tokenEntry is null
+                || tokenEntry.User is null
+                || tokenEntry.TokenExpiresAt < DateTime.UtcNow
+            )
+            {
+                return Result.Unauthorized("Invalid or expired refresh token");
+            }
 
-            var newRefreshToken = CreateRefreshToken(AuthConfig.RefreshTokenValidForDays);
-            var accessToken = CreateAccessToken(token.User!, AuthConfig.AccessTokenValidForMinutes);
+            var nextRefreshToken = CreateRefreshToken(tokenEntry.UserId);
+            var accessToken = CreateAccessToken(
+                tokenEntry.User,
+                AuthConfig.AccessTokenValidForMinutes
+            );
 
-            // Update with new values
-            token.TokenHash = HashToken(newRefreshToken.Value);
-            token.TokenExpiresAt = newRefreshToken.ExpiresAt;
+            tokenEntry.TokenHash = nextRefreshToken.Entry.TokenHash;
+            tokenEntry.TokenExpiresAt = nextRefreshToken.ExpiresAt;
 
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
 
             return Result<AuthResult>.Success(
                 new()
                 {
                     AccessToken = accessToken.Value,
-                    RefreshToken = newRefreshToken.Value,
+                    RefreshToken = nextRefreshToken.Value,
                     AccessTokenExpiresAt = accessToken.ExpiresAt,
-                    RefreshTokenExpiresAt = newRefreshToken.ExpiresAt,
+                    RefreshTokenExpiresAt = nextRefreshToken.ExpiresAt,
                 }
             );
         }
         catch
         {
-            await transaction.RollbackAsync();
-            throw;
+            await transaction.RollbackAsync(ct);
+            return Result.InternalServerError("An unexpected error has occured");
         }
     }
 }

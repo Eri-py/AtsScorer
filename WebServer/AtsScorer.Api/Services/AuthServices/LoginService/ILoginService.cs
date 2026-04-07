@@ -10,5 +10,5 @@ public interface ILoginService
     /// </summary>
     /// <param name="request">The login request containing email and password. See <see cref="LoginRequest"/></param>
     /// <returns><see cref="Result{T}"/> where T is <see cref="AuthResult"/></returns>
-    public Task<Result<AuthResult>> LoginAsync(LoginRequest request);
+    public Task<Result<AuthResult>> LoginAsync(LoginRequest request, CancellationToken ct);
 }

@@ -6,7 +6,7 @@ import { styled } from "@mui/material/styles";
 import Stack from "@mui/material/Stack";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
-import { useAuth } from "@/hooks/app/useAuth";
+import { useAuth, USER_DETAILS_QUERY_KEY } from "@/hooks/app/useAuth";
 import { useThemeToggle } from "@/hooks/shared/useThemeToggle";
 import { axiosInstance } from "@/api/axiosInstance";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -25,7 +25,7 @@ export function RightButtonGroup() {
   const logoutMutation = useMutation({
     mutationFn: () => axiosInstance.post("auth/logout"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userDetails"] });
+      queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
       navigate({ to: "/login" });
     },
   });
@@ -46,6 +46,11 @@ export function RightButtonGroup() {
       {!isAuthenticated && (
         <AuthButton onClick={() => navigate({ to: "/sign-up" })} variant="outlined">
           Sign up
+        </AuthButton>
+      )}
+      {isAuthenticated && (
+        <AuthButton onClick={() => navigate({ to: "/saved-files" })} variant="text">
+          My Files
         </AuthButton>
       )}
       {isAuthenticated && (

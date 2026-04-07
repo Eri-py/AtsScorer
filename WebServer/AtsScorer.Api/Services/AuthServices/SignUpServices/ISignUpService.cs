@@ -10,7 +10,10 @@ public interface ISignUpService
     /// </summary>
     /// <param name="request">The sign-up request containing email. See <see cref="StartSignUpRequest"/></param>
     /// <returns><see cref="Result{T}"/> where T is <see cref="OtpResponse"/></returns>
-    public Task<Result<OtpResponse>> StartSignUpAsync(StartSignUpRequest request);
+    public Task<Result<OtpResponse>> StartSignUpAsync(
+        StartSignUpRequest request,
+        CancellationToken ct
+    );
 
     /// <summary>
     /// Verifies the One-Time Passcode (OTP) sent to the user's email during registration.
@@ -30,7 +33,7 @@ public interface ISignUpService
     /// <remarks>
     /// Successful verification marks the email as confirmed in the system.
     /// </remarks>
-    public Task<Result<OtpResponse>> ResendOtpAsync(ResendOtpRequest request);
+    public Task<Result<OtpResponse>> ResendOtpAsync(ResendOtpRequest request, CancellationToken ct);
 
     /// <summary>
     /// Completes the sign-up process by saving all user details and creating an account.
@@ -40,5 +43,8 @@ public interface ISignUpService
     /// <remarks>
     /// This final step requires all user information and creates the actual user account.
     /// </remarks>
-    public Task<Result<AuthResult>> CompleteSignUpAsync(CompleteSignUpRequest request);
+    public Task<Result<AuthResult>> CompleteSignUpAsync(
+        CompleteSignUpRequest request,
+        CancellationToken ct
+    );
 }

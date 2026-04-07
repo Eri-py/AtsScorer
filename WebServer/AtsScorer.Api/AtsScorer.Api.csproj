@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="4.0.20.4" />
     <PackageReference Include="Google.Protobuf" Version="3.33.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="Grpc.Tools" Version="2.72.0">

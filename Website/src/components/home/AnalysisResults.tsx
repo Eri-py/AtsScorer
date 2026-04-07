@@ -2,10 +2,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
-import LinearProgress from "@mui/material/LinearProgress";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useTheme } from "@mui/material/styles";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 import type { AnalysisResult } from "@/hooks/home/types";
@@ -18,34 +16,22 @@ type AnalysisResultsProps = {
 function getScoreLabel(score: number): { label: string; color: "success" | "warning" | "error" } {
   if (score >= 75) return { label: "Good", color: "success" };
   if (score >= 50) return { label: "Average", color: "warning" };
-  return { label: "Poor", color: "error" };
+  return { label: "Needs Work", color: "error" };
 }
 
 function ScoreDisplay({ score }: { score: number }) {
-  const theme = useTheme();
   const { label, color } = getScoreLabel(score);
 
   return (
     <Stack alignItems="center" gap={1.5}>
       <Typography variant="h6" fontWeight={400}>
-        Match Score
+        ATS Assessment
       </Typography>
       <Box position="relative" display="inline-flex" alignItems="center" justifyContent="center">
         <Typography variant="h2" fontWeight={600} color={`${color}.main`}>
           {label}
         </Typography>
       </Box>
-      <LinearProgress
-        variant="determinate"
-        value={score}
-        color={color}
-        sx={{
-          width: "100%",
-          height: 10,
-          borderRadius: 5,
-          backgroundColor: theme.palette.action.hover,
-        }}
-      />
     </Stack>
   );
 }

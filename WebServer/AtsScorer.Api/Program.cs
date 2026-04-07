@@ -2,6 +2,7 @@ using AtsScorer.Api.Data;
 using AtsScorer.Api.Services.AnalyseResumeServices;
 using AtsScorer.Api.Services.AuthServices;
 using AtsScorer.Api.Services.EmailServices;
+using AtsScorer.Api.Services.SavedFileServices;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -38,6 +39,7 @@ builder.Services.AddDatabases(builder.Configuration);
 builder.Services.AddAuthServices(builder.Configuration);
 builder.Services.AddEmailServices(builder.Environment);
 builder.Services.AddResumeAnalysisServices(builder.Configuration);
+builder.Services.AddSavedFileServices(builder.Configuration);
 
 var app = builder.Build();
 

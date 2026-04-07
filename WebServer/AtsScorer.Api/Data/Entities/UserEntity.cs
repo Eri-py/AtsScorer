@@ -9,4 +9,5 @@ public record class UserEntity
 
     // Navigation properties
     public ICollection<RefreshTokenEntity> RefreshTokens { get; set; } = [];
+    public ICollection<SavedFileEntity> SavedFiles { get; set; } = [];
 }

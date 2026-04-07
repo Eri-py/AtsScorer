@@ -8,60 +8,69 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AtsScorer.Api.Services.AuthServices.LoginService;
 
-public class LoginService(AtsScorerDbContext context, ITokenService tokenService) : ILoginService
+public class LoginService(
+    AtsScorerDbContext context,
+    ITokenService tokenService,
+    ILogger<LoginService> logger
+) : ILoginService
 {
-    public async Task<Result<AuthResult>> LoginAsync(LoginRequest request)
+    public async Task<Result<AuthResult>> LoginAsync(LoginRequest request, CancellationToken ct)
     {
         var email = request.Identifier.ToLower();
 
-        // Find user by email
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
         if (user is null)
         {
-            return Result.Unauthorized("Invalid email or password");
+            logger.LogWarning("Login attempt with unknown email '{Email}'", email);
+            return Result.NotFound("Your login credentials don't match an account in our system.");
         }
 
-        // Verify password
         var hasher = new PasswordHasher<UserEntity>();
         var verificationResult = hasher.VerifyHashedPassword(
-            null!,
+            user,
             user.PasswordHash,
             request.Password
         );
 
         if (verificationResult == PasswordVerificationResult.Failed)
         {
-            return Result.Unauthorized("Invalid email or password");
+            logger.LogWarning("Invalid password attempt for email '{Email}'", email);
+            return Result.NotFound("Your login credentials don't match an account in our system.");
         }
 
-        // Create tokens
-        var accessTokenDetails = tokenService.CreateAccessToken(
-            user,
-            AuthConfig.AccessTokenValidForMinutes
-        );
-
-        var refreshTokenDetails = tokenService.CreateRefreshToken(
-            AuthConfig.RefreshTokenValidForDays
-        );
-
-        // Store refresh token in database
-        var refreshTokenEntry = new RefreshTokenEntity
+        using var transaction = await context.Database.BeginTransactionAsync(ct);
+        try
         {
-            TokenHash = tokenService.HashToken(refreshTokenDetails.Value),
-            TokenExpiresAt = refreshTokenDetails.ExpiresAt,
-            UserId = user.Id,
-        };
-        context.RefreshTokens.Add(refreshTokenEntry);
-        await context.SaveChangesAsync();
+            var refreshTokenDetails = tokenService.CreateRefreshToken(user.Id);
+            user.RefreshTokens.Add(refreshTokenDetails.Entry);
 
-        return Result<AuthResult>.Success(
-            new AuthResult
-            {
-                AccessToken = accessTokenDetails.Value,
-                RefreshToken = refreshTokenDetails.Value,
-                AccessTokenExpiresAt = accessTokenDetails.ExpiresAt,
-                RefreshTokenExpiresAt = refreshTokenDetails.ExpiresAt,
-            }
-        );
+            await context.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+
+            var accessTokenDetails = tokenService.CreateAccessToken(
+                user,
+                AuthConfig.AccessTokenValidForMinutes
+            );
+
+            return Result<AuthResult>.Success(
+                new AuthResult
+                {
+                    AccessToken = accessTokenDetails.Value,
+                    RefreshToken = refreshTokenDetails.Value,
+                    AccessTokenExpiresAt = accessTokenDetails.ExpiresAt,
+                    RefreshTokenExpiresAt = refreshTokenDetails.ExpiresAt,
+                }
+            );
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync(ct);
+            logger.LogError(
+                ex,
+                "Transaction failed during login completion for email '{Email}'",
+                email
+            );
+            return Result.InternalServerError("An unexpected error has occured");
+        }
     }
 }

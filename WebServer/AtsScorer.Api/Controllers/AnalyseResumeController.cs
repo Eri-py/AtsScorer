@@ -1,12 +1,11 @@
+using System.Security.Claims;
 using AtsScorer.Api.Extensions;
 using AtsScorer.Api.GrpcContracts;
 using AtsScorer.Api.Services.AnalyseResumeServices;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AtsScorer.Api.Controllers
 {
-    [Authorize]
     [Route("api/analyse-resume")]
     [ApiController]
     public class AnalyseResumeController(IAnalyseResumeService analyseResume) : ControllerBase
@@ -18,7 +17,11 @@ namespace AtsScorer.Api.Controllers
             [FromForm] string jobDescription
         )
         {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Guid? userId = Guid.TryParse(userIdClaim, out var parsedUserId) ? parsedUserId : null;
+
             var analysisResult = await analyseResume.AnalyseResumeAsync(
+                userId: userId,
                 resume: file,
                 fileName: fileName,
                 jobDescription: jobDescription

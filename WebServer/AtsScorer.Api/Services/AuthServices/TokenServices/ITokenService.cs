@@ -3,16 +3,26 @@ using AtsScorer.Common;
 
 namespace AtsScorer.Api.Services.AuthServices.TokenServices;
 
-public record TokenDetails
+public record AccessTokenDetails
 {
     public required string Value { get; set; }
     public required DateTime ExpiresAt { get; set; }
 }
 
+public record RefreshTokenDetails
+{
+    public required string Value { get; set; }
+    public required DateTime ExpiresAt { get; set; }
+    public required RefreshTokenEntity Entry { get; set; }
+}
+
 public interface ITokenService
 {
-    public TokenDetails CreateAccessToken(UserEntity user, int tokenValidFor);
-    public TokenDetails CreateRefreshToken(int tokenValidForDays);
-    public Task<Result<AuthResult>> VerifyRefreshTokenAsync(string refreshToken);
+    public AccessTokenDetails CreateAccessToken(UserEntity user, int tokenValidFor);
+    public RefreshTokenDetails CreateRefreshToken(Guid userId);
+    public Task<Result<AuthResult>> RotateRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct
+    );
     public string HashToken(string token);
 }

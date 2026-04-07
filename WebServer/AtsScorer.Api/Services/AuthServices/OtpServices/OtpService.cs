@@ -15,7 +15,11 @@ public class OtpService(IMemoryCache cache, IEmailService emailService) : IOtpSe
         return new OtpDetails { Value = token, ExpiresAt = expiresAt };
     }
 
-    public async Task<Result<OtpResponse>> SendOtpAsync(string email, string purpose)
+    public async Task<Result<OtpResponse>> SendOtpAsync(
+        string email,
+        string purpose,
+        CancellationToken ct
+    )
     {
         var cacheKey = $"otp_{purpose}_{email}";
 

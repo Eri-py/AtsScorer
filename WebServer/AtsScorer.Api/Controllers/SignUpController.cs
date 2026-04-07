@@ -12,10 +12,11 @@ namespace AtsScorer.Api.Controllers
     {
         [HttpPost("start")]
         public async Task<ActionResult<OtpResponse>> StartSignUp(
-            [FromBody] StartSignUpRequest request
+            [FromBody] StartSignUpRequest request,
+            CancellationToken ct
         )
         {
-            var result = await signUpService.StartSignUpAsync(request);
+            var result = await signUpService.StartSignUpAsync(request, ct);
             return result.ToActionResult();
         }
 
@@ -27,24 +28,28 @@ namespace AtsScorer.Api.Controllers
         }
 
         [HttpPost("resend-otp")]
-        public async Task<ActionResult<OtpResponse>> ResendOtp([FromBody] ResendOtpRequest request)
+        public async Task<ActionResult<OtpResponse>> ResendOtp(
+            [FromBody] ResendOtpRequest request,
+            CancellationToken ct
+        )
         {
-            var result = await signUpService.ResendOtpAsync(request);
+            var result = await signUpService.ResendOtpAsync(request, ct);
             return result.ToActionResult();
         }
 
         [HttpPost("complete")]
-        public async Task<ActionResult<AuthResult>> ResendOtp(
-            [FromBody] CompleteSignUpRequest request
+        public async Task<ActionResult<AuthResult>> CompleteSignUp(
+            [FromBody] CompleteSignUpRequest request,
+            CancellationToken ct
         )
         {
-            var result = await signUpService.CompleteSignUpAsync(request);
+            var result = await signUpService.CompleteSignUpAsync(request, ct);
             if (!result.IsSuccess)
             {
                 return result.ToActionResult();
             }
 
-            CookieHelper.SetAuthCookies(HttpContext, result.Content!);
+            HttpContext.SetAuthCookies(result.Content!);
             return NoContent();
         }
     }

@@ -16,7 +16,7 @@ export function AuthFooter({ mode }: AuthFooterProps) {
     login: {
       question: "Don't have an account?",
       linkText: "sign up here",
-      target: "/register",
+      target: "/sign-up",
     },
     register: {
       question: "Already have an account?",

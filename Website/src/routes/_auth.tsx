@@ -1,8 +1,10 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import Button from "@mui/material/Button";
+import { useEffect } from "react";
 
 import { useBreakpoint } from "@/hooks/shared/useBreakpoint";
 import { FormContainer } from "@/components/auth/FormContainer";
+import { useAuth } from "@/hooks/app/useAuth";
 
 export const Route = createFileRoute("/_auth")({
   component: AuthLayout,
@@ -11,6 +13,17 @@ export const Route = createFileRoute("/_auth")({
 function AuthLayout() {
   const { isDesktop } = useBreakpoint();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: "/" });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <FormContainer>

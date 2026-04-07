@@ -1,11 +1,10 @@
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockIcon from "@mui/icons-material/Lock";
 
 import { CustomFormHeader, CustomTextField } from "../CustomInputs";
 import { AuthFooter } from "../AuthFooter";
-import { OAuthButtonGroup } from "../OAuthButtonGroup";
 
 type UsernameAndPasswordProps = {
   handleNext: () => void;
@@ -23,10 +22,10 @@ export function UsernameAndPassword({
       <CustomFormHeader header="Log in" subtext="Glad to have you back!" align="center" />
 
       <CustomTextField
-        type="text"
-        label="Username or Email"
+        type="email"
+        label="Email"
         fieldValue="identifier"
-        startIcon={<AccountCircleOutlinedIcon />}
+        startIcon={<EmailOutlinedIcon />}
         autoComplete="email"
       />
 
@@ -48,8 +47,6 @@ export function UsernameAndPassword({
       >
         Continue
       </Button>
-
-      <OAuthButtonGroup />
 
       <AuthFooter mode="login" />
     </Stack>

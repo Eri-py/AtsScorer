@@ -12,6 +12,10 @@ public record OtpDetails
 public interface IOtpService
 {
     public OtpDetails CreateOtp(int otpValidForMinutes);
-    public Task<Result<OtpResponse>> SendOtpAsync(string email, string purpose);
+    public Task<Result<OtpResponse>> SendOtpAsync(
+        string email,
+        string purpose,
+        CancellationToken ct
+    );
     public Result VerifyOtp(string email, string otp, string purpose);
 }

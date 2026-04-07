@@ -1,24 +1,23 @@
 import type { ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import CircularProgress from "@mui/material/CircularProgress";
+import Stack from "@mui/material/Stack";
 
-import { AuthContext, getUserDetails, type AuthContextTypes } from "@/hooks/app/useAuth";
+import { AuthContext, useAuthProvider } from "@/hooks/app/useAuth";
 
 type AuthProviderTypes = {
   children: ReactNode;
 };
 
 export function AuthProvider({ children }: AuthProviderTypes) {
-  const { data } = useQuery({
-    queryKey: ["userDetails"],
-    queryFn: getUserDetails,
-    refetchOnWindowFocus: false,
-    staleTime: 15 * 60 * 1000,
-  });
+  const { value, isPending } = useAuthProvider();
 
-  const value: AuthContextTypes = {
-    isAuthenticated: data?.data.isAuthenticated,
-    user: data?.data.user,
-  };
+  if (isPending) {
+    return (
+      <Stack height="100dvh" alignItems="center" justifyContent="center">
+        <CircularProgress size={28} />
+      </Stack>
+    );
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -11,15 +11,18 @@ namespace AtsScorer.Api.Controllers;
 public class LoginController(ILoginService loginService) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<AuthResult>> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<AuthResult>> Login(
+        [FromBody] LoginRequest request,
+        CancellationToken ct
+    )
     {
-        var result = await loginService.LoginAsync(request);
+        var result = await loginService.LoginAsync(request, ct);
         if (!result.IsSuccess)
         {
             return result.ToActionResult();
         }
 
-        CookieHelper.SetAuthCookies(HttpContext, result.Content!);
+        HttpContext.SetAuthCookies(result.Content!);
         return NoContent();
     }
 }

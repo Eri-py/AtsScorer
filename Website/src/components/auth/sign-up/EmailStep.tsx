@@ -2,7 +2,6 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 
-import { OAuthButtonGroup } from "../OAuthButtonGroup";
 import { CustomFormHeader, CustomTextField } from "../CustomInputs";
 import { AuthFooter } from "../AuthFooter";
 
@@ -38,8 +37,6 @@ export function EmailStep({ handleNext, isPending }: EmailStepProps) {
       >
         Continue
       </Button>
-
-      <OAuthButtonGroup />
 
       <AuthFooter mode="register" />
     </Stack>
