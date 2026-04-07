@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 import { axiosInstance } from "@/api/axiosInstance";
 
@@ -15,7 +16,19 @@ export type getUserResponse = {
 };
 
 export const getUserDetails = () => {
-  return axiosInstance.get<getUserResponse>("auth/get-user-details");
+  return axiosInstance
+    .get<getUserResponse>("auth/get-user-details")
+    .then((response) => response.data)
+    .catch((error: unknown) => {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        return {
+          isAuthenticated: false,
+          user: null,
+        } satisfies getUserResponse;
+      }
+
+      throw error;
+    });
 };
 
 export type AuthContextTypes = getUserResponse;
@@ -41,8 +54,8 @@ export function useAuthProvider() {
 
   const value: AuthContextTypes = useMemo(
     () => ({
-      isAuthenticated: data?.data.isAuthenticated ?? false,
-      user: data?.data.user ?? null,
+      isAuthenticated: data?.isAuthenticated ?? false,
+      user: data?.user ?? null,
     }),
     [data],
   );

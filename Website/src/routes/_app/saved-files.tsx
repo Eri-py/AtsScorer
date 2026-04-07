@@ -53,13 +53,13 @@ function SavedFilesPage() {
                       rel="noreferrer"
                       underline="hover"
                     >
-                      Download
+                      Open
                     </Link>
                   }
                 >
                   <ListItemText
-                    primary={file.fileName}
-                    secondary={`${file.contentType} • ${Math.ceil(file.sizeInBytes / 1024)} KB • Saved ${formatDistanceToNow(new Date(file.uploadedAt))} ago`}
+                    primary={file.chatTitle}
+                    secondary={`${file.fileName} • ${file.contentType} • ${Math.ceil(file.sizeInBytes / 1024)} KB • Saved ${formatDistanceToNow(new Date(file.uploadedAt))} ago`}
                   />
                 </ListItem>
               ))}

@@ -39,11 +39,11 @@ class GitHubModelsClient:
             "You are an ATS evaluator. Compare a resume against a job description and "
             "return only valid JSON with keys: score, feedback, missing_keywords, skills_analysis.\n\n"
             "Scoring rubric (be fair and holistic — do not penalize heavily for minor keyword gaps):\n"
-            "- 0.85–1.0: Strong match — most required skills and experience are present\n"
-            "- 0.70–0.84: Good match — core skills present, missing some nice-to-haves\n"
-            "- 0.50–0.69: Partial match — has relevant skills but gaps in key areas\n"
-            "- 0.30–0.49: Weak match — few relevant qualifications\n"
-            "- 0.00–0.29: Poor match — largely unrelated background\n\n"
+            "- 85–100: Strong match — most required skills and experience are present\n"
+            "- 70–84: Good match — core skills present, missing some nice-to-haves\n"
+            "- 50–69: Partial match — has relevant skills but gaps in key areas\n"
+            "- 30–49: Weak match — few relevant qualifications\n"
+            "- 0–29: Poor match — largely unrelated background\n\n"
             "Give credit for transferable skills, related experience, and equivalent qualifications. "
             "Do not require exact keyword matches — recognise synonyms and related terms."
         )
@@ -51,7 +51,7 @@ class GitHubModelsClient:
         user_prompt = (
             "Return JSON only.\n"
             "Rules:\n"
-            "- score: float in range [0,1]\n"
+            "- score: number in range [0,100]\n"
             "- feedback: short plain-text summary\n"
             "- missing_keywords: array of strings\n"
             "- skills_analysis: object with string keys and string values\n\n"
@@ -85,7 +85,12 @@ class GitHubModelsClient:
             numeric_score = float(value)
         except (TypeError, ValueError):
             numeric_score = 0.0
-        return max(0.0, min(1.0, numeric_score))
+
+        # Backward compatibility: normalize legacy 0-1 model outputs to 0-100.
+        if 0.0 <= numeric_score <= 1.0:
+            numeric_score *= 100.0
+
+        return max(0.0, min(100.0, numeric_score))
 
     @staticmethod
     def _safe_keywords(value: Any) -> list[str]:

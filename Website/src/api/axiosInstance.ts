@@ -1,6 +1,27 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const API_BASE_URL = "https://localhost:7000/api";
+const API_ORIGIN = new URL(API_BASE_URL).origin;
+
+export function resolveApiUrl(pathOrUrl: string | null): string | null {
+  if (!pathOrUrl) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    return pathOrUrl;
+  }
+
+  if (pathOrUrl.startsWith("/api/")) {
+    return `${API_ORIGIN}${pathOrUrl}`;
+  }
+
+  if (pathOrUrl.startsWith("api/")) {
+    return `${API_ORIGIN}/${pathOrUrl}`;
+  }
+
+  return `${API_BASE_URL.replace(/\/$/, "")}/${pathOrUrl.replace(/^\//, "")}`;
+}
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

@@ -38,6 +38,7 @@ public class SavedFileService : ISavedFileService
         Guid userId,
         IFormFile file,
         string fileName,
+        string jobDescription,
         AnalyseResumeResponse analysisResponse
     )
     {
@@ -47,8 +48,9 @@ public class SavedFileService : ISavedFileService
         }
 
         var fileExtension = Path.GetExtension(fileName);
-        var objectKey = $"users/{userId}/files/{Guid.NewGuid()}{fileExtension}";
+        var objectKey = $"{userId}/{Guid.NewGuid()}{fileExtension}";
         var analysisObjectKey = BuildAnalysisObjectKey(objectKey);
+        var jobDescriptionObjectKey = BuildJobDescriptionObjectKey(objectKey);
 
         try
         {
@@ -85,6 +87,16 @@ public class SavedFileService : ISavedFileService
 
             await _s3Client.PutObjectAsync(putAnalysisRequest);
 
+            var putJobDescriptionRequest = new PutObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = jobDescriptionObjectKey,
+                ContentBody = jobDescription,
+                ContentType = "text/plain; charset=utf-8",
+            };
+
+            await _s3Client.PutObjectAsync(putJobDescriptionRequest);
+
             var savedFile = new SavedFileEntity
             {
                 Id = Guid.NewGuid(),
@@ -110,11 +122,12 @@ public class SavedFileService : ISavedFileService
         {
             _logger.LogError(
                 ex,
-                "Failed to save file for user {UserId}. Bucket: {BucketName}, ObjectKey: {ObjectKey}, AnalysisKey: {AnalysisObjectKey}",
+                "Failed to save file for user {UserId}. Bucket: {BucketName}, ObjectKey: {ObjectKey}, AnalysisKey: {AnalysisObjectKey}, JobDescriptionKey: {JobDescriptionObjectKey}",
                 userId,
                 _bucketName,
                 objectKey,
-                analysisObjectKey
+                analysisObjectKey,
+                jobDescriptionObjectKey
             );
             return Result.InternalServerError("Failed to save file.");
         }
@@ -140,16 +153,15 @@ public class SavedFileService : ISavedFileService
             var skillsAnalysis =
                 payload?.SkillsAnalysis
                 ?? JsonSerializer.Deserialize<Dictionary<string, string>>(file.SkillsAnalysisJson)
-                ?? new Dictionary<string, string>();
+                ?? [];
 
-            var downloadUrl = _s3Client.GetPreSignedURL(
-                new GetPreSignedUrlRequest
-                {
-                    BucketName = _bucketName,
-                    Key = file.ObjectKey,
-                    Expires = DateTime.UtcNow.AddMinutes(15),
-                }
-            );
+            var downloadUrl = $"/api/saved-files/{file.Id}/resume";
+
+            var jobDescriptionDownloadUrl = await ObjectExistsAsync(
+                BuildJobDescriptionObjectKey(file.ObjectKey)
+            )
+                ? $"/api/saved-files/{file.Id}/job-description"
+                : null;
 
             responses.Add(
                 new SavedFileResponse(
@@ -159,6 +171,7 @@ public class SavedFileService : ISavedFileService
                     file.SizeInBytes,
                     file.CreatedAt,
                     downloadUrl,
+                    jobDescriptionDownloadUrl,
                     new SavedFileAiResponse(
                         file.AnalysisStatus,
                         file.MatchScore,
@@ -171,6 +184,86 @@ public class SavedFileService : ISavedFileService
         }
 
         return Result<IReadOnlyList<SavedFileResponse>>.Success(responses);
+    }
+
+    public async Task<Result<SavedFileDownloadResponse>> GetResumeFileAsync(
+        Guid userId,
+        Guid savedFileId,
+        CancellationToken ct
+    )
+    {
+        var savedFile = await _context.SavedFiles.FirstOrDefaultAsync(
+            file => file.Id == savedFileId && file.UserId == userId,
+            ct
+        );
+
+        if (savedFile is null)
+        {
+            return Result.NotFound("File was not found.");
+        }
+
+        try
+        {
+            var objectResponse = await _s3Client.GetObjectAsync(
+                new GetObjectRequest { BucketName = _bucketName, Key = savedFile.ObjectKey },
+                ct
+            );
+
+            await using var responseStream = objectResponse.ResponseStream;
+            await using var memoryStream = new MemoryStream();
+            await responseStream.CopyToAsync(memoryStream, ct);
+
+            return Result<SavedFileDownloadResponse>.Success(
+                new SavedFileDownloadResponse(
+                    savedFile.OriginalFileName,
+                    savedFile.ContentType,
+                    memoryStream.ToArray()
+                )
+            );
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return Result.NotFound("File attachment was not found.");
+        }
+    }
+
+    public async Task<Result<string>> GetJobDescriptionTextAsync(
+        Guid userId,
+        Guid savedFileId,
+        CancellationToken ct
+    )
+    {
+        var savedFile = await _context.SavedFiles.FirstOrDefaultAsync(
+            file => file.Id == savedFileId && file.UserId == userId,
+            ct
+        );
+
+        if (savedFile is null)
+        {
+            return Result.NotFound("File was not found.");
+        }
+
+        try
+        {
+            var objectResponse = await _s3Client.GetObjectAsync(
+                new GetObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = BuildJobDescriptionObjectKey(savedFile.ObjectKey),
+                },
+                ct
+            );
+
+            await using var responseStream = objectResponse.ResponseStream;
+            using var reader = new StreamReader(responseStream);
+            var content = await reader.ReadToEndAsync(ct);
+
+            return Result<string>.Success(content);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return Result.NotFound("Job description attachment was not found.");
+        }
     }
 
     private async Task EnsureBucketExistsAsync()
@@ -207,6 +300,26 @@ public class SavedFileService : ISavedFileService
     private static string BuildAnalysisObjectKey(string fileObjectKey)
     {
         return $"{fileObjectKey}.analysis.json";
+    }
+
+    private static string BuildJobDescriptionObjectKey(string fileObjectKey)
+    {
+        return $"{fileObjectKey}.job-description.txt";
+    }
+
+    private async Task<bool> ObjectExistsAsync(string objectKey)
+    {
+        try
+        {
+            await _s3Client.GetObjectMetadataAsync(
+                new GetObjectMetadataRequest { BucketName = _bucketName, Key = objectKey }
+            );
+            return true;
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
     }
 
     private sealed class SavedAnalysisPayload

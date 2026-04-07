@@ -20,14 +20,20 @@ export function useChatWorkspace(chatId: string | null) {
   const fileUpload = useFileUpload();
   const home = useHomePage();
   const { data: history = [], isLoading: isHistoryLoading } = useSavedFiles();
+  const isHistoryView = chatId !== null;
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const logoutMutation = useMutation({
     mutationFn: () => axiosInstance.post("auth/logout"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
-      navigate({ to: "/login" });
+    onSuccess: async () => {
+      queryClient.setQueryData(USER_DETAILS_QUERY_KEY, {
+        isAuthenticated: false,
+        user: null,
+      });
+      queryClient.removeQueries({ queryKey: ["savedFiles"] });
+      await queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
+      navigate({ to: "/" });
     },
   });
 
@@ -51,6 +57,7 @@ export function useChatWorkspace(chatId: string | null) {
       return {
         fileName: selectedHistory.fileName,
         downloadUrl: selectedHistory.downloadUrl,
+        jobDescriptionDownloadUrl: selectedHistory.jobDescriptionDownloadUrl,
         aiResponse: selectedHistory.aiResponse,
       };
     }
@@ -62,6 +69,7 @@ export function useChatWorkspace(chatId: string | null) {
     return {
       fileName: home.latestFileName,
       downloadUrl: null,
+      jobDescriptionDownloadUrl: null,
       aiResponse: {
         status: home.analysisResult.status,
         matchScore: home.analysisResult.matchScore,
@@ -133,6 +141,7 @@ export function useChatWorkspace(chatId: string | null) {
     setThemeMode,
     isSidebarCollapsed,
     toggleSidebar,
+    isHistoryView,
 
     history,
     isHistoryLoading,

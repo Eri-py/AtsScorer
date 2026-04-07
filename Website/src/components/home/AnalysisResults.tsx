@@ -13,25 +13,28 @@ type AnalysisResultsProps = {
   onReset: () => void;
 };
 
-function getScoreLabel(score: number): { label: string; color: "success" | "warning" | "error" } {
-  if (score >= 75) return { label: "Good", color: "success" };
-  if (score >= 50) return { label: "Average", color: "warning" };
-  return { label: "Needs Work", color: "error" };
+function normalizeScore(score: number): number {
+  const normalizedScore = score <= 1 ? score * 100 : score;
+  return Math.max(0, Math.min(100, normalizedScore));
 }
 
 function ScoreDisplay({ score }: { score: number }) {
-  const { label, color } = getScoreLabel(score);
+  const normalizedScore = normalizeScore(score);
+  const scoreOutOfTen = (normalizedScore / 10).toFixed(1);
 
   return (
     <Stack alignItems="center" gap={1.5}>
       <Typography variant="h6" fontWeight={400}>
-        ATS Assessment
+        ATS Score
       </Typography>
       <Box position="relative" display="inline-flex" alignItems="center" justifyContent="center">
-        <Typography variant="h2" fontWeight={600} color={`${color}.main`}>
-          {label}
+        <Typography variant="h2" fontWeight={700} color="text.primary">
+          {scoreOutOfTen}/10
         </Typography>
       </Box>
+      <Typography variant="body2" color="text.secondary">
+        {Math.round(normalizedScore)}/100
+      </Typography>
     </Stack>
   );
 }

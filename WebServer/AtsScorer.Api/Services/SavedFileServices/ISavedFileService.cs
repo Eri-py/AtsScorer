@@ -10,8 +10,21 @@ public interface ISavedFileService
         Guid userId,
         IFormFile file,
         string fileName,
+        string jobDescription,
         AnalyseResumeResponse analysisResponse
     );
 
     Task<Result<IReadOnlyList<SavedFileResponse>>> GetUserFilesAsync(Guid userId);
+
+    Task<Result<SavedFileDownloadResponse>> GetResumeFileAsync(
+        Guid userId,
+        Guid savedFileId,
+        CancellationToken ct
+    );
+
+    Task<Result<string>> GetJobDescriptionTextAsync(
+        Guid userId,
+        Guid savedFileId,
+        CancellationToken ct
+    );
 }

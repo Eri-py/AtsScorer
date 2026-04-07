@@ -15,5 +15,8 @@ public record SavedFileResponse(
     long SizeInBytes,
     DateTime UploadedAt,
     string DownloadUrl,
+    string? JobDescriptionDownloadUrl,
     SavedFileAiResponse AiResponse
 );
+
+public record SavedFileDownloadResponse(string FileName, string ContentType, byte[] Content);

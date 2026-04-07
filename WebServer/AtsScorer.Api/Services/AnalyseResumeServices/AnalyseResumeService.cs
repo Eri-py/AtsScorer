@@ -44,6 +44,7 @@ public class AnalyseResumeService(
                 userId.Value,
                 resume,
                 safeFileName,
+                jobDescription,
                 grpcResponse
             );
             if (!saveResult.IsSuccess)

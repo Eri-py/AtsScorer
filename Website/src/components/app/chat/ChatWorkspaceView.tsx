@@ -70,24 +70,32 @@ export function ChatWorkspaceView({ chatId }: ChatWorkspaceViewProps) {
 
         <ChatConversationPanel conversation={workspace.activeConversation} />
 
-        <ChatComposer
-          file={workspace.fileUpload.file}
-          errors={workspace.fileUpload.errors}
-          isDragActive={workspace.fileUpload.isDragActive}
-          getRootProps={workspace.fileUpload.getRootProps}
-          getInputProps={workspace.fileUpload.getInputProps}
-          removeFile={workspace.fileUpload.removeFile}
-          removeError={workspace.fileUpload.removeError}
-          jobDescription={workspace.home.jobDescription}
-          jobDescriptionError={workspace.home.jobDescriptionError}
-          onJobDescriptionChange={workspace.home.handleJobDescriptionChange}
-          onSubmit={(event) => {
-            event.preventDefault();
-            void workspace.submitCurrentAnalysis();
-          }}
-          onReset={workspace.startNewAnalysis}
-          isSubmitting={workspace.home.isSubmitting}
-        />
+        {workspace.isHistoryView ? (
+          <Stack px={{ xs: 1, md: 3 }} pb={2}>
+            <Typography variant="body2" color="text.secondary">
+              History view is read-only. Click New Chat to run another analysis.
+            </Typography>
+          </Stack>
+        ) : (
+          <ChatComposer
+            file={workspace.fileUpload.file}
+            errors={workspace.fileUpload.errors}
+            isDragActive={workspace.fileUpload.isDragActive}
+            getRootProps={workspace.fileUpload.getRootProps}
+            getInputProps={workspace.fileUpload.getInputProps}
+            removeFile={workspace.fileUpload.removeFile}
+            removeError={workspace.fileUpload.removeError}
+            jobDescription={workspace.home.jobDescription}
+            jobDescriptionError={workspace.home.jobDescriptionError}
+            onJobDescriptionChange={workspace.home.handleJobDescriptionChange}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void workspace.submitCurrentAnalysis();
+            }}
+            onReset={workspace.startNewAnalysis}
+            isSubmitting={workspace.home.isSubmitting}
+          />
+        )}
       </Stack>
     </Stack>
   );

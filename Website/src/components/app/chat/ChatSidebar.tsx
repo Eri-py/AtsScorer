@@ -117,8 +117,8 @@ export function ChatSidebar({
             }}
           >
             <ListItemText
-              primary={entry.fileName}
-              secondary={`Saved ${formatDistanceToNow(new Date(entry.uploadedAt))} ago`}
+              primary={entry.chatTitle}
+              secondary={`${entry.fileName} • Saved ${formatDistanceToNow(new Date(entry.uploadedAt))} ago`}
               slotProps={{
                 primary: { sx: { fontSize: "0.88rem", fontWeight: 500 } },
                 secondary: { sx: { fontSize: "0.75rem" } },

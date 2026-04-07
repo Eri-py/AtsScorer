@@ -24,9 +24,14 @@ export function RightButtonGroup() {
 
   const logoutMutation = useMutation({
     mutationFn: () => axiosInstance.post("auth/logout"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
-      navigate({ to: "/login" });
+    onSuccess: async () => {
+      queryClient.setQueryData(USER_DETAILS_QUERY_KEY, {
+        isAuthenticated: false,
+        user: null,
+      });
+      queryClient.removeQueries({ queryKey: ["savedFiles"] });
+      await queryClient.invalidateQueries({ queryKey: USER_DETAILS_QUERY_KEY });
+      navigate({ to: "/" });
     },
   });
 
